@@ -1,4 +1,5 @@
-const chrome = require('chrome-aws-lambda');
+const chromium = require('@sparticuz/chromium');
+const puppeteer = require('puppeteer-core');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -14,16 +15,17 @@ module.exports = async (req, res) => {
   let browser;
 
   try {
-    browser = await chrome.puppeteer.launch({
-      args: chrome.args,
-      executablePath: await chrome.executablePath,
-      headless: chrome.headless
+    browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless
     });
 
     const page = await browser.newPage();
     
     await page.setViewport({ width: 1080, height: 1920 });
-    await page.setContent(html);
+    await page.setContent(html, { waitUntil: 'networkidle0' });
     
     const screenshot = await page.screenshot({ type: 'png' });
     
@@ -37,3 +39,25 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 };
+```
+
+3. **Commit changes**
+
+4. **Подождите деплой** (3-4 минуты, т.к. новые пакеты)
+
+5. **Проверьте:**
+```
+https://id-ev.ru/magic-epil-stories/id-ev-content/test_generation.php
+```
+
+---
+
+## 🎯 ДОЛЖНО ЗАРАБОТАТЬ!
+
+В логах билда увидите:
+```
+Installing dependencies...
+@sparticuz/chromium@123.0.1
+puppeteer-core@23.1.0
+
+✅ Build successful
